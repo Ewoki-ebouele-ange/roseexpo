@@ -1,9 +1,29 @@
 import { StyleSheet, Text, View ,SafeAreaView,TextInput} from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
-const InputBox = () => {
+import { addDoc , collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore'
+import {db} from "../../config"
+import { NavContext } from '../../App';
+
+const InputBox = (matchDetails) => {
     const [text,setText]=useState("")
     const isMessage = false;
+    const {user} = useContext(NavContext)
+
+var  dt = new Date()
+var date = dt.getHours()+":"+dt.getMinutes()
+
+const sendMessage = () => {
+  addDoc(collection(db, 'matches', matchDetails.matchDetails.id, 'messages'), {
+    timestamp : dt,
+    userId: user.uid,
+    name : matchDetails.matchDetails.users[user.uid].name,
+    photoUrl : matchDetails.matchDetails.users[user.uid].tabImg[0],
+    message: text
+  })
+
+  setText("")
+}
 
   return (
     <SafeAreaView style={styles.container}>
@@ -27,7 +47,7 @@ const InputBox = () => {
 
         {/* Icon */}
         <MaterialIcons
-        //  onPress={onSend}
+          onPress={() => sendMessage()}
           style={styles.send}
           name="send"
           size={16}

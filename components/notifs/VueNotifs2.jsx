@@ -15,6 +15,8 @@ import {
   
   const VueNotifs2 = ({ route, navigation }) => {
     const { data } = route.params || {}
+
+    console.log('data', data)
     const MessageRecu = () => {
       return (
         <View style={{ justifyContent: "center", flexDirection: "row", left: 15, width: WIDTH * 0.8, paddingLeft: 10 }}>
@@ -52,8 +54,8 @@ import {
               <Ionicons name="chevron-back" size={40} color="gray" />
             </TouchableOpacity>
             <View style={{ flexDirection: "column", justifyContent: "center", alignContent: "center" }}>
-              <Image style={{ height: 50, width: 50, borderRadius: 50 }} source={require("../../assets/couple/cine.jpeg")} />
-              <Text style={{ fontFamily: "regular", textAlign: "center" }}>{data.text.slice(0, 8) + "..."}</Text>
+              <Image style={{ height: 50, width: 50, borderRadius: 50 }} source={{uri: getMatchedUserInfo(data.users, user.uid)?.tabImg[0]}} />
+              <Text style={{ fontFamily: "regular", textAlign: "center" }}>{getMatchedUserInfo(data.users, user.uid)?.name}</Text>
             </View>
             <MaterialCommunityIcons name="video" size={30} color="gray" />
           </View>

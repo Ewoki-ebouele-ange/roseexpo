@@ -3,7 +3,7 @@ import {
     Text, View, Image, Dimensions, KeyboardAvoidingView, Platform,
     FlatList, TouchableOpacity
 } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import dayjs from "dayjs";
@@ -12,21 +12,39 @@ const WIDTH = Dimensions.get('screen').width
 const HEIGHT = Dimensions.get('screen').height
 import messages from "../../assets/data/message.json"
 import InputBox from './InputBox'
+import getMatchedUserInfo from '../../lib/getMatchedUserInfo';
+import { NavContext } from '../../App';
+import { addDoc , collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore'
+import { db } from '../../config';
 
 
 
 const VueNotifs3 = ({ route, navigation }) => {
 
     const { data } = route.params || {}
+    const [message, setMessage] = useState([])
 
-    const isMessage = false;
+    const isMessage = true;
+const { user } = useContext(NavContext)
 
-    const MessageRecu = () => {
+useEffect(() => {
+    onSnapshot(query(collection(db, 'matches', data.id, 'messages'),
+    orderBy("timestamp", 'desc')), snapShot => setMessage(snapShot.docs.map(
+        doc => ({
+            id: doc.id,
+            ...doc.data()
+        }) 
+    ))
+    )
+  }, [data, db])
+
+
+    const MessageRecu = ({message}) => {
         return (
-            <View style={{ justifyContent: "center", flexDirection: "row", left: 15, width: WIDTH * 0.8, paddingLeft: 10 }}>
-                <Image style={{ height: 30, width: 30, borderRadius: 60, alignSelf: "center", marginRight: 5 }} source={require("../../assets/couple/cine.jpeg")} />
+            <View style={{ flexDirection: "row",  width: WIDTH * 0.8, paddingLeft: 2, gap: 10 }}>
+                <Image style={{ height: 30, width: 30, borderRadius: 60, marginRight: 5 }} source={{uri: getMatchedUserInfo(data.users, user.uid)?.tabImg[0]}} />
                 <View style={{ backgroundColor: "#eeeeee", borderRadius: 20, padding: 10 }}>
-                    <Text style={{ fontFamily: "regular", textAlign: "center", }}>salut leThis guide points to the various navigation components available in React Native. If you are getting started with navigation, you will probably want to use React Navigation. React Navigation provides a straightforward navigation solution, with the ability to present common stack navigation and tabbed navigation patterns on both Android and iOS. niang xadikoi ???</Text>
+                    <Text style={{ fontFamily: "regular",}}>{message.message}</Text>
                 </View>
             </View>
         )
@@ -34,31 +52,34 @@ const VueNotifs3 = ({ route, navigation }) => {
 
     const MessageEnvoyer = ({ message }) => {
         return (
-            <View style={{ backgroundColor: "gray", borderRadius: 20, padding: 10, justifyContent: "center", width: WIDTH * 0.8, marginBottom: 10, marginTop: 10, left: 65 }}>
-                <Text style={{ fontFamily: "regular", textAlign: "center", }}>salut le niang xadikoi This guide points to the various navigation components available in React Native. If you are getting started with navigation, you will probably want to use React Navigation. React Navigation provides a straightforward navigation solution, with the ability to present common stack navigation and tabbed navigation patterns on both Android and iOS.???</Text>
+            <View style={{justifyContent: "flex-end",alignItems:'flex-end', backgroundColor: "#F63A6E", borderRadius: 20,position:'relative', padding: 10, width: WIDTH * 0.8, marginBottom: 10, marginTop: 10, left: 65 }}>
+                <Text style={{ fontFamily: "regular", textAlign: "center", }}>{message.message}</Text>
             </View>
         )
     }
 
-    const Mes = ({ message }) => {
+    const Mes = ({ message, messageUserId }) => {
         const isMessageRead = false;
         const isMyMsg = () => {
-            return message.user.id === "u1"
+            return messageUserId === user.uid
         }
 
+        var  dt = new Date(message.timestamp.seconds)
+// var date = message.timestamp.getHours()+":"+message.timestamp.getMinutes()
+var date = dt.getHours()+":"+dt.getMinutes()
         return (
-            <TouchableOpacity onPress={() => console.log(message)} style={[styles.containerMes,
+            <TouchableOpacity onPress={() => console.log( date)} style={[styles.containerMes,
             {
                 alignSelf: isMyMsg() ? "flex-end" : "flex-start",
                 backgroundColor: !isMyMsg() ? "#eee" : "#318CE7",
                 borderBottomLeftRadius: !isMyMsg() ? 1 : 30,
                 borderBottomRightRadius: !isMyMsg() ? 30 : 1,
             }]}>
-                <Text style={{ fontFamily: "regular" }}>{message.text}</Text>
+                <Text style={{ fontFamily: "regular" }}>{message.message}</Text>
 
                 <View style={{ flexDirection: "row", justifyContent: isMyMsg() ? "flex-end" : "space-evenly" }}>
                     <Text style={[styles.createdMes, { alignSelf: !isMyMsg() ? "flex-start" : "flex-end" }]}>
-                        {dayjs(message.created).format("HH:mm A")}
+                        {}
                     </Text>
                     {!isMessageRead ? (
                         <MaterialCommunityIcons style={{ alignSelf: isMyMsg() ? "flex-end" : "flex-start" }} name="read" size={16} color="#5bb6c9" />
@@ -80,8 +101,8 @@ const VueNotifs3 = ({ route, navigation }) => {
                     <Ionicons name="chevron-back" size={40} color="gray" />
                 </TouchableOpacity>
                 <View style={{ flexDirection: "column", justifyContent: "center", alignContent: "center" }}>
-                    <Image style={{ height: 50, width: 50, borderRadius: 50 }} source={require("../../assets/couple/cine.jpeg")} />
-                    <Text style={{ fontFamily: "regular", textAlign: "center" }}>{data.text.slice(0, 8) + "..."}</Text>
+                    <Image style={{ height: 50, width: 50, borderRadius: 50 }} source={{uri: getMatchedUserInfo(data.users, user.uid)?.tabImg[0]}} />
+                    <Text style={{ fontFamily: "regular", textAlign: "center" }}>{getMatchedUserInfo(data.users, user.uid)?.name}</Text>
                 </View>
                 <MaterialCommunityIcons name="video" size={30} color="gray" />
             </View>
@@ -96,8 +117,11 @@ const VueNotifs3 = ({ route, navigation }) => {
                     {
                         isMessage ?
                             <FlatList
-                                data={messages}
-                                renderItem={(({ item }) => <Mes message={item} />)}
+                                data={message}
+                                keyExtractor={(item) => item.id}
+                                renderItem={(({ item }) =>                                     
+                                <Mes messageUserId={item.userId} key={item.id} message={item}/>
+                                 ) }
                                 style={styles.list}
                                 inverted
 
@@ -106,15 +130,15 @@ const VueNotifs3 = ({ route, navigation }) => {
                                 <View style={{ alignSelf: "center", top: "50%" }}>
                                     <View style={{flexDirection:"row",justifyContent:"center",alignSelf:"center"}}>
                                         <Text style={{fontFamily:"regular",textAlign:"center",color:"gray",fontSize:15}}>Tu as matché avec </Text>
-                                        <Text style={{fontFamily:"bold",textAlign:"center",color:"gray",fontSize:17}}>Franck</Text>
+                                        <Text style={{fontFamily:"bold",textAlign:"center",color:"gray",fontSize:17}}>{getMatchedUserInfo(data.users, user.uid).name}</Text>
                                     </View>
 
-                                    <Image style={{ height: 180, width: 180, borderRadius: 80, }} source={require('../../assets/couple/fem3.jpeg')} />
+                                    <Image style={{ height: 180, width: 180, borderRadius: 80, }} source={{uri: getMatchedUserInfo(data.users, user.uid)?.tabImg[0]}} />
                                 </View>
                             </View>
                     }
 
-                    <InputBox />
+                    <InputBox matchDetails={data}/>
                 </ImageBackground>
             </KeyboardAvoidingView>
         </>

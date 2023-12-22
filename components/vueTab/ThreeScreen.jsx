@@ -11,6 +11,7 @@ export default function ThreeScreen() {
       <Stack.Screen  name="notifs1" component={VueNotifs} options={{
         title: 'Spark',
         headerTitleStyle: { fontWeight: "bold", color: "#F63A6E", fontSize: 25 },
+        headerShown:false
       }}/>
       <Stack.Screen name="notifs2" component={VueNotifs3} options={{headerShown:false}} />
     </Stack.Navigator>

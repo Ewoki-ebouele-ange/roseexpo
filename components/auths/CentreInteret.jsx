@@ -1,4 +1,4 @@
-import { Dimensions, SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, FlatList } from 'react-native'
+import { Dimensions, SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, FlatList, Button } from 'react-native'
 import React, { useContext } from 'react'
 const HEIGHT = Dimensions.get('window').height
 const WIDTH = Dimensions.get('window').width
@@ -8,6 +8,9 @@ import { useNavigation } from '@react-navigation/native'
 import { useDispatch } from 'react-redux';
 import { setSignIn } from '../../store/authSlice';
 import { NavContext } from '../../App';
+
+import { db } from '../../config';
+import { doc, updateDoc  } from 'firebase/firestore';
 
 
 
@@ -35,9 +38,10 @@ const CentreInteret = ({ navigation, route }) => {
     const newLocal = "tabs";
 
     const nav = useNavigation()
+    const {user, tabInteret, setTabInteret}= useContext(NavContext)
 
 
-    const [tabInteret, setTabInteret] = React.useState([])
+
     const tabInt = [""]
     function insererDansTableau(donnee) {
         const index = tabInt.indexOf(donnee);
@@ -93,12 +97,20 @@ const CentreInteret = ({ navigation, route }) => {
 
     };
 
-    const {genre,dateNaissance,position, interet, email, phoneNumber, mdp,name,categorieRose,age}= useContext(NavContext)
 
     const dispatch = useDispatch();
 
-    const suite = () => {
-        nav.navigate('Photo')
+    const suite = async () => {
+        await updateDoc(doc(db, 'users', user.uid), {
+            tabInteret: tabInteret
+          })
+            .then(() => {
+                nav.navigate('Photo')
+            })
+          .catch((error) => {
+              alert(error.message)
+          })
+        
     }
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
@@ -124,6 +136,7 @@ const CentreInteret = ({ navigation, route }) => {
                             }
                         </View>
                     </ScrollView>
+                    <Button title='Voir Tab' color="black" onPress={console.log("tabInteret", tabInteret)}/>
                     <TouchableOpacity onPress={() => tabInteret.length === 5 ? suite():null} style={{ height: 50, width: "70%", backgroundColor: tabInteret.length === 5 ? '#F63A6E' : "lightgray", marginTop: 1, alignContent: "center", alignItems: "center", borderRadius: 25, position: "absolute", bottom: 0, left: '25%' }}>
                         <Text style={{ fontSize: 22, fontWeight: "bold", textAlign: "center", color: "white", marginTop: 12, alignSelf: "center" }}>SUIVANT {tabInteret.length}/5</Text>
                     </TouchableOpacity>

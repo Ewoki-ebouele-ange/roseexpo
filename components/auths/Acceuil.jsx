@@ -1,11 +1,9 @@
-import { Dimensions, Image, ImageBackground, ScrollView, StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Pressable, Button, TouchableOpacity } from 'react-native'
+import { Dimensions, Image, ScrollView, StyleSheet, Text, View, KeyboardAvoidingView, Pressable, Button, TouchableOpacity } from 'react-native'
 import React, { useContext } from 'react'
 const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
-import { object, string, number, date, InferType } from 'yup';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { Ionicons } from '@expo/vector-icons';
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { useState } from 'react';
 import { Feather } from '@expo/vector-icons';
@@ -14,34 +12,57 @@ import { NavContext } from '../../App';
 import { useDispatch } from 'react-redux';
 import { setLogin } from '../../store/authSlice';
 
+import { auth } from '../../config'
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from '../../config';
+
 const loginSchema = Yup.object().shape({
-    email: Yup.string().email('Entrez un email valide!').required('l\'adresse email est obligatoire!'),
+    email: Yup.string().email('Entrez un email valide!').required('L\'adresse email est obligatoire!'),
     password: Yup.string().min(5, ({ min }) => `Au moins ${min} caractères`).required('Mot de pass obligatoire!')
 });
 
 
 const Acceuil = ({ navigation, route }) => {
 
-    const [cont, setCont] = useState('');
+    const {email, setEmail, setUser} = useContext(NavContext)
     const [show, setShow] = useState(false);
-    const {errorEmailMdp, setErrorEmailMdp}= useContext(NavContext)
+    const [dataInfo, setDataInfo] = useState([]);
+    const {errorEmailMdp, setErrorEmailMdp, userData, setUserData,userData2, setUserData2}= useContext(NavContext)
     
-    const dispatch = useDispatch(setLogin);
+    const dispatch = useDispatch();
 
     function suite(values){
-        const user = {
-            isLoggedIn: true,
-            email: values.email,
-            password: values.password
+       
+       // dispatch(setLogin(user))
+
+        signInWithEmailAndPassword(auth,values.email, values.password)
+        .then(async (userCredentials) => {
+          const user = userCredentials.user;
+          setUser(user)
+          setEmail(values.email)
+    
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            console.log("userData Accueil23", docSnap.data())
+            dispatch(setLogin(docSnap.data()))
+        } else {
+        // docSnap.data() will be undefined in this case
+        console.log("No such document!");
         }
-        dispatch(setLogin(user))
+          
+          
+          navigation.navigate('Animation', {page:"tabLayout"})
+        })
+        .catch(error => alert(error.message))
     }
 
     return (
         <Formik
             initialValues={{ email: '',password:'' }}
             validateOnMount={true}
-            onSubmit={values => console.log(values.password)}
             validationSchema={loginSchema}
         >
             {({ handleChange, handleBlur, handleSubmit, values,touched,errors,isValid }) => (
@@ -71,7 +92,7 @@ const Acceuil = ({ navigation, route }) => {
                                     <View style={{ marginBottom:10,}}>
                                         <FloatingLabelInput
                                             label={'Email'}
-                                            labelStyles={{ alignSelf: 'center', paddingTop: 20, color: "#000", }}
+                                            labelStyles={{ alignSelf: 'center', paddingTop: 10,fontSize:20, color: "#000", }}
                                             // isPassword
                                             keyboardType='email-address'
                                             togglePassword={show}
@@ -89,10 +110,10 @@ const Acceuil = ({ navigation, route }) => {
                                     <View style={{ borderColor: "red" }}>
                                         <FloatingLabelInput
                                             label={'Password'}
-                                            labelStyles={{ alignSelf: 'center', paddingTop: 20, color: "#000", }}
+                                            labelStyles={{ alignSelf: 'center', paddingTop: 20,fontSize:20, color: "#000", }}
                                             isPassword
                                             togglePassword={show}
-                                            containerStyles={{ borderColor: "#F63A6E", borderWidth: 2, height: 60, borderRadius: 20, alignContent: "center", padding: 10, marginTop: 20 }}
+                                            containerStyles={{ borderColor: "#F63A6E", borderWidth: 2, height: 60, borderRadius: 20, alignContent: "center",justifyContent:'center', padding: 10, marginTop: 20 }}
                                             //value={cont}
                                             //onChangeText={value => setCont(value)}
                                             customShowPasswordComponent={<Feather name="eye" size={24} color="black" />}
@@ -114,7 +135,7 @@ const Acceuil = ({ navigation, route }) => {
                                         <Text style={{}}> </Text>
                                         <Text style={{ textAlign: "center", color: "gray", fontFamily: "regular" }}>
                                             Mot de passe
-                                            <Text style={{ color: "#F63A6E", fontStyle: "italic", fontFamily: "regular" }}>{''} oublié ?</Text>
+                                            <Text onPress={() => navigation.navigate('ForgotPassword')} style={{ color: "#F63A6E", fontStyle: "italic", fontFamily: "regular" }}>{''} oublié ?</Text>
                                         </Text>
                                     </Pressable>
                                 </View>

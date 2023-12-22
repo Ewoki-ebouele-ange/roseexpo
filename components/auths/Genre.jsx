@@ -6,6 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { NavContext } from '../../App';
 
+import { db } from '../../config';
+import { doc, updateDoc  } from 'firebase/firestore';
 
 const Genre = ({navigation, route}) => {
     const [genre1, setGenre1] = React.useState("")
@@ -13,7 +15,7 @@ const Genre = ({navigation, route}) => {
     const [validGenreH, setValidGenreH] = React.useState(false)
     const [validGenre, setValidGenre] = React.useState(false)
 
-    const {genre, setGenre} = useContext(NavContext)
+    const {genre, setGenre,user} = useContext(NavContext)
 
     function selectGenre(gr){
         setGenre(gr)
@@ -27,6 +29,19 @@ const Genre = ({navigation, route}) => {
         setValidGenreF(false)
     }
 
+    }
+
+
+    const suite = async () => {
+       await updateDoc(doc(db, 'users', user.uid), {
+          genre: genre
+        })
+          .then(() => {
+            navigation.navigate('CentreInteret')
+          })
+        .catch((error) => {
+            alert(error.message)
+        })
     }
 
   const newLocal = "CentreInteret";
@@ -49,7 +64,7 @@ const Genre = ({navigation, route}) => {
                         <Text style={{fontSize:20,fontWeight:"bold",textAlign:"center",marginTop:12,color:validGenreH?"white":"gray"}}>Homme</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={()=>navigation.navigate(newLocal)} style={{ height: 50, width: "70%", backgroundColor: validGenre ? '#F63A6E' : "lightgray", alignSelf: "center", marginTop: 70, alignContent: "center", alignItems: "center", borderRadius: 25 }}>
+                    <TouchableOpacity onPress={()=>suite()} style={{ height: 50, width: "70%", backgroundColor: validGenre ? '#F63A6E' : "lightgray", alignSelf: "center", marginTop: 70, alignContent: "center", alignItems: "center", borderRadius: 25 }}>
                     <Text style={{ fontSize: 22, fontWeight: "bold", textAlign: "center", color: "white", marginTop: 12, alignSelf: "center" }}>SUIVANT</Text>
                 </TouchableOpacity>
                 </View>

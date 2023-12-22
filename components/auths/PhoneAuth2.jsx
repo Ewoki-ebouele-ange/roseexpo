@@ -1,4 +1,4 @@
-import { Dimensions, SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
+import { Dimensions, SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native'
 import React, { useContext, useRef, useState } from 'react'
 const HEIGHT = Dimensions.get('window').height
 const WIDTH = Dimensions.get('window').width
@@ -8,10 +8,13 @@ import { NavContext } from '../../App';
 
 import OTPInputView from '@twotalltotems/react-native-otp-input'
 
+import { auth } from '../../config';
+import { PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
+
 const tab = [, 11, 1, 1, , 1, 1, 1]
 
 const PhoneAuth2 = ({ navigation, route }) => {
-    const [code, setCode] = React.useState(0)
+    const [code, setCode] = React.useState('')
     const [chiffre2, setChiffre2] = React.useState("")
     const [chiffre3, setChiffre3] = React.useState("")
     const [chiffre4, setChiffre4] = React.useState("")
@@ -20,15 +23,39 @@ const PhoneAuth2 = ({ navigation, route }) => {
     const [validFormNumber, setValidFormNumber] = React.useState(false)
 
     const { validPhone, setValidPhone, phoneNumber } = useContext(NavContext)
+    const verificationId = route.params?.variable || ''
 
-    function suite() {
+
+    const suite = async () => {
+        const credential = PhoneAuthProvider.credential(
+            verificationId,
+            code
+        )
+        await signInWithCredential(auth, credential)
+        .then((userCredentials) => {
+            const user = userCredentials.user
+            setCode('')
+            Alert.alert(
+                'Login succesful! welcome'
+            )
+            console.log('User', user)
+            setValidPhone(code)
+            navigation.navigate("EmailAuth1")
+        })
+        .catch((error) => {
+            //Show an alert
+            alert(error)
+        })
+        
+    }
+
+    /*function suite() {
       //  const tab = [chiffre1, chiffre2, chiffre3, chiffre4, chiffre5, chiffre6]
         //dispatch verfier phone
-        setValidPhone(code)
-        navigation.navigate(newLocal)
+        
         //  handleVerification()
-    }
-    const newLocal = "EmailAuth1";
+    }*/
+    //const newLocal = "EmailAuth1";
  //   const [code, setCode] = useState(['', '', '', '']);
     const textInputs = Array.from({ length: 4 }, (_, index) => useRef(null));
     const handleCodeChange = (index, value) => {

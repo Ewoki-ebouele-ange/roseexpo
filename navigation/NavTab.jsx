@@ -18,6 +18,7 @@ import OneScreen from '../components/vueTab/OneScreen';
 import TwoScreen from '../components/vueTab/TwoScreen';
 import ThreeScreen from '../components/vueTab/ThreeScreen';
 import FourScreen from '../components/vueTab/FourScreen';
+import FiveScreen from '../components/vueTab/FiveScreen';
 
 // import ModalScreen from '../modal';
 
@@ -31,6 +32,8 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const modalMenu = useContext(NavContext)?.modalMenu
   const setModalMenu = useContext(NavContext)?.setModalMenu
+
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -40,7 +43,7 @@ export default function TabLayout() {
         name="index"
         component={OneScreen}
         options={{
-          title: 'spark',
+          title: 'Spark',
           headerTitleStyle: { fontWeight: "bold", color: "#F63A6E", fontSize: 25 },
           tabBarIcon: ({ color }) => <FontAwesome name="tint" color={color} size={28} style={{ marginBottom: -3 }} />,
            headerRight: () => (
