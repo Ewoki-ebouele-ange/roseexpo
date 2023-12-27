@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, Image, TouchableOpacity, Button } from 'react-native'
 import React, { useContext } from 'react'
 import { EvilIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
@@ -97,7 +97,27 @@ const VueParams = () => {
 
       <View style={{ height: "43%", width: WIDTH, backgroundColor: "#eee" }}>
         <View style={{ borderWidth: 1, height: "95%", width: "90%", alignSelf: 'center', borderRadius: 20, backgroundColor: "white" }}>
-          
+        
+        <View>
+          <View>Product 1</View>
+          <Button>subscribe</Button>
+        </View>
+
+        <View>
+          <View>Product 2</View>
+          <Button>subscribe</Button>
+        </View>
+
+        <View>
+          <View>Product 3</View>
+          <Button>subscribe</Button>
+        </View>
+
+        <View>
+          <View>Product 4</View>
+          <Button>subscribe</Button>
+        </View>
+
         </View>
       </View>
     </View>

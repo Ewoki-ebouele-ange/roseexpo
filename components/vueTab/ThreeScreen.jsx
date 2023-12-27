@@ -13,7 +13,7 @@ export default function ThreeScreen() {
         headerTitleStyle: { fontWeight: "bold", color: "#F63A6E", fontSize: 25 },
         headerShown:false
       }}/>
-      <Stack.Screen name="notifs2" component={VueNotifs3} options={{headerShown:false}} />
+      <Stack.Screen name="notifs3" component={VueNotifs3} options={{headerShown:false}} />
     </Stack.Navigator>
   );
 }

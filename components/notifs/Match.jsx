@@ -17,7 +17,7 @@ const Match = ({ matchDetails }) => {
     },[matchDetails, user])
 
     return (
-        <TouchableOpacity onPress={() => navigation.navigate('notifs2', { data: matchDetails })} style={{ flexDirection: "column", justifyContent: "center" }}>
+        <TouchableOpacity onPress={() => navigation.navigate('notifs3', { data: matchDetails })} style={{ flexDirection: "column", justifyContent: "center" }}>
             <View style={{ height: 140, width: 100, marginLeft: 5, alignItems: "center", borderWidth: 2, borderColor: "gold", borderRadius: 10 }}>
                 <Image source={{uri: MatchedUserInfo?.tabImg[0]}} style={{ height: 137, width: 98, borderRadius: 10 }} />
                 <AntDesign style={{ position: "absolute", bottom: 0 }} name="heart" size={24} color="gold" />

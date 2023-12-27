@@ -27,8 +27,10 @@ const Message = ({ matchDetails }) => {
         )
     },[matchDetails, db])
 
+    console.log('MatchedUserInfo', MatchedUserInfo)
+
     return (
-        <TouchableOpacity onPress={() => navigation.navigate('notifs2', { data: matchDetails })}>
+        <TouchableOpacity onPress={() => navigation.navigate('notifs3', { data: matchDetails })}>
             <View style={{ margin: 10, flexDirection: "row", justifyContent: "flex-start" }}>
                 <Image style={{ height: 80, width: 80, borderRadius: 50 }} source={{uri: MatchedUserInfo?.tabImg[0]}} />
                 <View style={{ flexDirection: "column", alignContent: "center", alignSelf: "center", marginLeft: 10, gap:15 }}>

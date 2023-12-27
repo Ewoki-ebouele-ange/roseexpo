@@ -76,7 +76,7 @@ function AppMain() {
           :
           <NavigationContainer>
             {
-             userData.isLoggedIn ?
+             !userData.isLoggedIn ?
                 <Stack.Navigator initialRouteName='NavAuth' screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="NavAuth" component={NavAuth} />
                  <Stack.Screen name="tabLayout" component={TabLayout} /> 
